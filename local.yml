@@ -1,0 +1,71 @@
+version: '3'
+
+volumes:
+  local_postgres_data: {}
+  local_postgres_data_backups: {}
+  storage:
+
+services:
+  django:
+    build:
+      context: .
+      dockerfile: ./compose/local/django/Dockerfile
+    image: local_django
+    container_name: local_django
+    depends_on:
+      - postgres
+    volumes:
+      - .:/app:z
+      - ./storage:/app/storage
+    env_file:
+      - ./.envs/.local/.django
+      - ./.envs/.local/.postgres
+    ports:
+      - '8000:8000'
+    command: /start
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./compose/production/postgres/Dockerfile
+    image: django_documentserver_production_postgres
+    container_name: local_postgres
+    volumes:
+      - local_postgres_data:/var/lib/postgresql/data
+      - local_postgres_data_backups:/backups
+    env_file:
+      - ./.envs/.local/.postgres
+
+  docs:
+    image: local_docs
+    container_name: local_docs
+    build:
+      context: .
+      dockerfile: ./compose/local/docs/Dockerfile
+    env_file:
+      - ./.envs/.local/.django
+    volumes:
+      - ./docs:/docs:z
+      - ./config:/app/config:z
+      - ./django_documentserver:/app/django_documentserver:z
+    ports:
+      - '9000:9000'
+    command: /start-docs
+
+  document-server:
+    container_name: document-server
+    image: onlyoffice/documentserver:8.0
+    expose:
+      - "80"
+    env_file:
+      - ./.envs/.local/.django
+
+  proxy:
+    container_name: proxy
+    build:
+      context: .
+      dockerfile: ./compose/local/proxy/Dockerfile
+    image: local_proxy
+    ports:
+      - "80:80"
+      - "8080:8080"

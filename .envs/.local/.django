@@ -1,0 +1,13 @@
+# General
+# ------------------------------------------------------------------------------
+USE_DOCKER=yes
+IPYTHONDIR=/app/.ipython
+DATABASE_URL=
+
+# Document Server
+# ------------------------------------------------------------------------------
+DOCUMENT_SERVER_PRIVATE_URL=http://proxy:8080
+DOCUMENT_SERVER_PUBLIC_URL=http://localhost:8080
+EXAMPLE_URL=http://proxy
+JWT_SECRET=your-256-bit-secret
+
